@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Buy {{ item.name }}</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 600px; 
+            margin: 50px auto; 
+            padding: 20px; 
+        }
+        button {
+            background: #5469d4;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover { background: #4f46e5; }
+    </style>
+</head>
+<body>
+    <h1>{{ item.name }}</h1>
+    <p><strong>Description:</strong> {{ item.description }}</p>
+    <p><strong>Price:</strong> ${{ item.price }}</p>
+    <button id="buy-button">Buy Now</button>
+    
+    <script type="text/javascript">
+        var stripe = Stripe('{{ stripe_publishable_key }}');
+        var buyButton = document.getElementById('buy-button');
+        
+        buyButton.addEventListener('click', function() {
+            // Показываем что загружается
+            buyButton.textContent = 'Loading...';
+            buyButton.disabled = true;
+            
+            fetch('/buy/{{ item.id }}/', {method: 'GET'})
+            .then(response => response.json())
+            .then(session => {
+                if (session.error) {
+                    alert('Error: ' + session.error);
+                    buyButton.textContent = 'Buy Now';
+                    buyButton.disabled = false;
+                } else {
+                    stripe.redirectToCheckout({ sessionId: session.id });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Something went wrong!');
+                buyButton.textContent = 'Buy Now';
+                buyButton.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>
