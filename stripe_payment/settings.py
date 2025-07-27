@@ -60,3 +60,9 @@ STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
 
 STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Production settings for Railway
+import os
+if 'RAILWAY_ENVIRONMENT' in os.environ:
+    ALLOWED_HOSTS = ['*']
+    CSRF_TRUSTED_ORIGINS = [f'https://{os.environ.get("RAILWAY_PUBLIC_DOMAIN", "")}']
+    DEBUG = False
